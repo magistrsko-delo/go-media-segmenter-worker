@@ -1,4 +1,4 @@
-FROM golang:alpine AS builder
+FROM golang:alpine
 
 RUN apk upgrade -U \
  && apk add ca-certificates ffmpeg libva-intel-driver \
