@@ -41,6 +41,7 @@ func (worker *Worker) Work()  {
 			ffmpeg := &ffmpeg.FFmpeg{}
 				// get file frame rate
 			frameRate, err := ffmpeg.ExecFFprobeCommand([]string{"-v", "0", "-of", "csv=p=0", "-select_streams", "v:0", "-show_entries", "stream=r_frame_rate", "./assets/"+mediaMetadata.AwsStorageNameWholeMedia})
+			resolution := "1920x1080"
 			if err != nil {
 				log.Println(err)
 			}
@@ -66,6 +67,8 @@ func (worker *Worker) Work()  {
 			if err != nil {
 				log.Println(err)
 			}
+
+			position := 0
 			for index, file := range files {
 				if index == 0 || strings.Contains(file, ".gitkeep") {
 					continue
@@ -98,6 +101,15 @@ func (worker *Worker) Work()  {
 				lengthFloat = math.Ceil(lengthFloat*1000000)/1000000
 				fmt.Println("length: ", lengthFloat)
 
+				// bucketName string, storageName string, length float64, mediaId int, resolution string, position int
+				chunkMetadata := Models.NewChunkMetadata(mediaMetadata.AwsBucketWholeMedia, filePathArray[len(filePathArray) - 1], lengthFloat, mediaMetadata.MediaId, resolution, position)
+
+				err = HttpUtils.ChunkMetadataUpload(chunkMetadata, worker.env.ChunkMetadataUrl)
+				if err != nil {
+					log.Println(err)
+				}
+
+				position++
 				worker.removeFile(file)
 			}
 

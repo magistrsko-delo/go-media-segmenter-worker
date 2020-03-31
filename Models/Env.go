@@ -15,6 +15,7 @@ type Env struct {
 	MediaManagerUrl string
 	MediaMetadataUrl string
 	AawsStorageUrl string
+	ChunkMetadataUrl string
 	Env string
 }
 
@@ -27,6 +28,7 @@ func InitEnv()  {
 		MediaManagerUrl:  os.Getenv("MEDIA_MANAGER_URL"),
 		MediaMetadataUrl: os.Getenv("MEDIA_METADATA_URL"),
 		AawsStorageUrl:   os.Getenv("AWS_STORAGE_URL"),
+		ChunkMetadataUrl: os.Getenv("CHUNK_METADATA_URL"),
 		Env: 			  os.Getenv("ENV"),
 	}
 }
