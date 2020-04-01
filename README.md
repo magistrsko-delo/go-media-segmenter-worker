@@ -23,3 +23,9 @@ cmdArgs := []string{"-i", "./assets/"+mediaMetadata.AwsStorageNameWholeMedia, "-
    "-c:a", "aac", "-ar", "48000", "-b:a", "128k", "-c:v", "h264", "-profile:v", "main", "-crf", "20", "-g", "50", "-keyint_min", "50",
    "-sc_threshold", "0", "-b:v", "5000k", "-maxrate", "5350k", "-bufsize", "7500", "-b:a", "192k", "-hls_segment_filename", "./assets/chunks/1080p_%03d.ts", "./assets/chunks/1080p.m3u8"}
 ```
+
+##PROTOCOL BUFFER
+
+```.env
+protoc proto\helloworld.proto --go_out=plugins=grpc:.
+```
