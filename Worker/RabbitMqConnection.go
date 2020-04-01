@@ -6,13 +6,6 @@ import (
 	"main/Models"
 )
 
-/*type Queue struct {
-	Name      string // server confirmed or generated name
-	Messages  int    // count of messages not awaiting acknowledgment
-	Consumers int    // number of consumers receiving deliveries
-}*/
-
-
 type RabbitMqConnection struct {
 	Conn *amqp.Connection
 	Ch   *amqp.Channel
