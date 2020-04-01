@@ -119,7 +119,7 @@ func (m *CreateNewMediaMetadataRequest) GetAwsStorageNameWholeMedia() string {
 	return ""
 }
 
-type CreateNewMediaMetadataResponse struct {
+type MediaMetadataResponse struct {
 	MediaId                  int32    `protobuf:"varint,1,opt,name=mediaId,proto3" json:"mediaId,omitempty"`
 	Name                     string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	SiteName                 string   `protobuf:"bytes,3,opt,name=siteName,proto3" json:"siteName,omitempty"`
@@ -137,118 +137,230 @@ type CreateNewMediaMetadataResponse struct {
 	XXX_sizecache            int32    `json:"-"`
 }
 
-func (m *CreateNewMediaMetadataResponse) Reset()         { *m = CreateNewMediaMetadataResponse{} }
-func (m *CreateNewMediaMetadataResponse) String() string { return proto.CompactTextString(m) }
-func (*CreateNewMediaMetadataResponse) ProtoMessage()    {}
-func (*CreateNewMediaMetadataResponse) Descriptor() ([]byte, []int) {
+func (m *MediaMetadataResponse) Reset()         { *m = MediaMetadataResponse{} }
+func (m *MediaMetadataResponse) String() string { return proto.CompactTextString(m) }
+func (*MediaMetadataResponse) ProtoMessage()    {}
+func (*MediaMetadataResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_1a2cef8a9a3cc635, []int{1}
 }
 
-func (m *CreateNewMediaMetadataResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_CreateNewMediaMetadataResponse.Unmarshal(m, b)
+func (m *MediaMetadataResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_MediaMetadataResponse.Unmarshal(m, b)
 }
-func (m *CreateNewMediaMetadataResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_CreateNewMediaMetadataResponse.Marshal(b, m, deterministic)
+func (m *MediaMetadataResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_MediaMetadataResponse.Marshal(b, m, deterministic)
 }
-func (m *CreateNewMediaMetadataResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CreateNewMediaMetadataResponse.Merge(m, src)
+func (m *MediaMetadataResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MediaMetadataResponse.Merge(m, src)
 }
-func (m *CreateNewMediaMetadataResponse) XXX_Size() int {
-	return xxx_messageInfo_CreateNewMediaMetadataResponse.Size(m)
+func (m *MediaMetadataResponse) XXX_Size() int {
+	return xxx_messageInfo_MediaMetadataResponse.Size(m)
 }
-func (m *CreateNewMediaMetadataResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_CreateNewMediaMetadataResponse.DiscardUnknown(m)
+func (m *MediaMetadataResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MediaMetadataResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_CreateNewMediaMetadataResponse proto.InternalMessageInfo
+var xxx_messageInfo_MediaMetadataResponse proto.InternalMessageInfo
 
-func (m *CreateNewMediaMetadataResponse) GetMediaId() int32 {
+func (m *MediaMetadataResponse) GetMediaId() int32 {
 	if m != nil {
 		return m.MediaId
 	}
 	return 0
 }
 
-func (m *CreateNewMediaMetadataResponse) GetName() string {
+func (m *MediaMetadataResponse) GetName() string {
 	if m != nil {
 		return m.Name
 	}
 	return ""
 }
 
-func (m *CreateNewMediaMetadataResponse) GetSiteName() string {
+func (m *MediaMetadataResponse) GetSiteName() string {
 	if m != nil {
 		return m.SiteName
 	}
 	return ""
 }
 
-func (m *CreateNewMediaMetadataResponse) GetLength() int32 {
+func (m *MediaMetadataResponse) GetLength() int32 {
 	if m != nil {
 		return m.Length
 	}
 	return 0
 }
 
-func (m *CreateNewMediaMetadataResponse) GetStatus() int32 {
+func (m *MediaMetadataResponse) GetStatus() int32 {
 	if m != nil {
 		return m.Status
 	}
 	return 0
 }
 
-func (m *CreateNewMediaMetadataResponse) GetThumbnail() string {
+func (m *MediaMetadataResponse) GetThumbnail() string {
 	if m != nil {
 		return m.Thumbnail
 	}
 	return ""
 }
 
-func (m *CreateNewMediaMetadataResponse) GetProjectId() int32 {
+func (m *MediaMetadataResponse) GetProjectId() int32 {
 	if m != nil {
 		return m.ProjectId
 	}
 	return 0
 }
 
-func (m *CreateNewMediaMetadataResponse) GetAwsBucketWholeMedia() string {
+func (m *MediaMetadataResponse) GetAwsBucketWholeMedia() string {
 	if m != nil {
 		return m.AwsBucketWholeMedia
 	}
 	return ""
 }
 
-func (m *CreateNewMediaMetadataResponse) GetAwsStorageNameWholeMedia() string {
+func (m *MediaMetadataResponse) GetAwsStorageNameWholeMedia() string {
 	if m != nil {
 		return m.AwsStorageNameWholeMedia
 	}
 	return ""
 }
 
-func (m *CreateNewMediaMetadataResponse) GetKeywords() []string {
+func (m *MediaMetadataResponse) GetKeywords() []string {
 	if m != nil {
 		return m.Keywords
 	}
 	return nil
 }
 
-func (m *CreateNewMediaMetadataResponse) GetCreatedAt() int64 {
+func (m *MediaMetadataResponse) GetCreatedAt() int64 {
 	if m != nil {
 		return m.CreatedAt
 	}
 	return 0
 }
 
-func (m *CreateNewMediaMetadataResponse) GetUpdatedAt() int64 {
+func (m *MediaMetadataResponse) GetUpdatedAt() int64 {
 	if m != nil {
 		return m.UpdatedAt
 	}
 	return 0
 }
 
+type UpdateMediaRequest struct {
+	MediaId                  int32    `protobuf:"varint,1,opt,name=mediaId,proto3" json:"mediaId,omitempty"`
+	Name                     string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	SiteName                 string   `protobuf:"bytes,3,opt,name=siteName,proto3" json:"siteName,omitempty"`
+	Length                   int32    `protobuf:"varint,4,opt,name=length,proto3" json:"length,omitempty"`
+	Status                   int32    `protobuf:"varint,5,opt,name=status,proto3" json:"status,omitempty"`
+	Thumbnail                string   `protobuf:"bytes,6,opt,name=thumbnail,proto3" json:"thumbnail,omitempty"`
+	ProjectId                int32    `protobuf:"varint,7,opt,name=projectId,proto3" json:"projectId,omitempty"`
+	AwsBucketWholeMedia      string   `protobuf:"bytes,8,opt,name=awsBucketWholeMedia,proto3" json:"awsBucketWholeMedia,omitempty"`
+	AwsStorageNameWholeMedia string   `protobuf:"bytes,9,opt,name=awsStorageNameWholeMedia,proto3" json:"awsStorageNameWholeMedia,omitempty"`
+	CreatedAt                int64    `protobuf:"varint,11,opt,name=createdAt,proto3" json:"createdAt,omitempty"`
+	XXX_NoUnkeyedLiteral     struct{} `json:"-"`
+	XXX_unrecognized         []byte   `json:"-"`
+	XXX_sizecache            int32    `json:"-"`
+}
+
+func (m *UpdateMediaRequest) Reset()         { *m = UpdateMediaRequest{} }
+func (m *UpdateMediaRequest) String() string { return proto.CompactTextString(m) }
+func (*UpdateMediaRequest) ProtoMessage()    {}
+func (*UpdateMediaRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_1a2cef8a9a3cc635, []int{2}
+}
+
+func (m *UpdateMediaRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_UpdateMediaRequest.Unmarshal(m, b)
+}
+func (m *UpdateMediaRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_UpdateMediaRequest.Marshal(b, m, deterministic)
+}
+func (m *UpdateMediaRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UpdateMediaRequest.Merge(m, src)
+}
+func (m *UpdateMediaRequest) XXX_Size() int {
+	return xxx_messageInfo_UpdateMediaRequest.Size(m)
+}
+func (m *UpdateMediaRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_UpdateMediaRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_UpdateMediaRequest proto.InternalMessageInfo
+
+func (m *UpdateMediaRequest) GetMediaId() int32 {
+	if m != nil {
+		return m.MediaId
+	}
+	return 0
+}
+
+func (m *UpdateMediaRequest) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *UpdateMediaRequest) GetSiteName() string {
+	if m != nil {
+		return m.SiteName
+	}
+	return ""
+}
+
+func (m *UpdateMediaRequest) GetLength() int32 {
+	if m != nil {
+		return m.Length
+	}
+	return 0
+}
+
+func (m *UpdateMediaRequest) GetStatus() int32 {
+	if m != nil {
+		return m.Status
+	}
+	return 0
+}
+
+func (m *UpdateMediaRequest) GetThumbnail() string {
+	if m != nil {
+		return m.Thumbnail
+	}
+	return ""
+}
+
+func (m *UpdateMediaRequest) GetProjectId() int32 {
+	if m != nil {
+		return m.ProjectId
+	}
+	return 0
+}
+
+func (m *UpdateMediaRequest) GetAwsBucketWholeMedia() string {
+	if m != nil {
+		return m.AwsBucketWholeMedia
+	}
+	return ""
+}
+
+func (m *UpdateMediaRequest) GetAwsStorageNameWholeMedia() string {
+	if m != nil {
+		return m.AwsStorageNameWholeMedia
+	}
+	return ""
+}
+
+func (m *UpdateMediaRequest) GetCreatedAt() int64 {
+	if m != nil {
+		return m.CreatedAt
+	}
+	return 0
+}
+
 func init() {
 	proto.RegisterType((*CreateNewMediaMetadataRequest)(nil), "CreateNewMediaMetadataRequest")
-	proto.RegisterType((*CreateNewMediaMetadataResponse)(nil), "CreateNewMediaMetadataResponse")
+	proto.RegisterType((*MediaMetadataResponse)(nil), "MediaMetadataResponse")
+	proto.RegisterType((*UpdateMediaRequest)(nil), "UpdateMediaRequest")
 }
 
 func init() {
@@ -256,30 +368,33 @@ func init() {
 }
 
 var fileDescriptor_1a2cef8a9a3cc635 = []byte{
-	// 365 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x93, 0x4d, 0x4f, 0xfa, 0x40,
-	0x10, 0xc6, 0xff, 0xa5, 0x2f, 0xc0, 0xfc, 0x35, 0x31, 0x6b, 0x62, 0x36, 0x44, 0xb1, 0xe1, 0xc4,
-	0x09, 0x89, 0xde, 0xbc, 0x89, 0x27, 0x0e, 0x70, 0xa8, 0x31, 0x1e, 0xc9, 0xd2, 0x8e, 0x50, 0xa1,
-	0x2f, 0x76, 0xa7, 0x36, 0x7e, 0x17, 0xbf, 0x80, 0xdf, 0xd2, 0xec, 0x96, 0x17, 0x35, 0xb6, 0x31,
-	0xde, 0xfa, 0x3c, 0xcf, 0xcc, 0x66, 0xe7, 0x37, 0x5d, 0x18, 0xa6, 0x59, 0x42, 0xc9, 0x45, 0x84,
-	0x41, 0x28, 0x66, 0x11, 0x92, 0x08, 0x04, 0x89, 0x52, 0x6e, 0xd5, 0x4c, 0x62, 0xf6, 0x12, 0xfa,
-	0x38, 0xd0, 0xa5, 0xbd, 0xf7, 0x06, 0x9c, 0xdd, 0x66, 0x28, 0x08, 0xa7, 0x58, 0x4c, 0x54, 0xe1,
-	0x64, 0x53, 0xe8, 0xe1, 0x73, 0x8e, 0x92, 0x18, 0x03, 0x2b, 0x16, 0x11, 0x72, 0xc3, 0x35, 0xfa,
-	0x6d, 0x4f, 0x7f, 0xb3, 0x0e, 0xb4, 0x64, 0x48, 0x38, 0x55, 0x7e, 0x43, 0xfb, 0x3b, 0xcd, 0x4e,
-	0xc0, 0x59, 0x63, 0xbc, 0xa0, 0x25, 0x37, 0x5d, 0xa3, 0x6f, 0x7b, 0x1b, 0xa5, 0x7c, 0x49, 0x82,
-	0x72, 0xc9, 0xad, 0xd2, 0x2f, 0x15, 0x3b, 0x85, 0x36, 0x2d, 0xf3, 0x68, 0x1e, 0x8b, 0x70, 0xcd,
-	0x6d, 0x7d, 0xd8, 0xde, 0x50, 0x69, 0x9a, 0x25, 0x4f, 0xe8, 0xd3, 0x38, 0xe0, 0x8e, 0x6e, 0xdc,
-	0x1b, 0x6c, 0x08, 0xc7, 0xa2, 0x90, 0xa3, 0xdc, 0x5f, 0x21, 0x3d, 0x2c, 0x93, 0x35, 0xea, 0x09,
-	0x78, 0x53, 0x9f, 0xf2, 0x53, 0xc4, 0xae, 0x81, 0x8b, 0x42, 0xde, 0x51, 0x92, 0x89, 0x85, 0xbe,
-	0xef, 0xa7, 0xb6, 0x96, 0x6e, 0xab, 0xcc, 0x7b, 0x6f, 0x26, 0x74, 0xab, 0x58, 0xc9, 0x34, 0x89,
-	0x25, 0x32, 0x0e, 0x4d, 0x4d, 0x7b, 0x1c, 0x68, 0x5e, 0xb6, 0xb7, 0x95, 0x3b, 0x8c, 0x8d, 0x0a,
-	0x8c, 0x66, 0x25, 0x46, 0xab, 0x02, 0xa3, 0x5d, 0x8d, 0xd1, 0xa9, 0xc5, 0xd8, 0xfc, 0x25, 0xc6,
-	0xd6, 0xdf, 0x30, 0xb6, 0xeb, 0x31, 0xaa, 0xa9, 0x57, 0xf8, 0x5a, 0x24, 0x59, 0x20, 0x39, 0xb8,
-	0xa6, 0x9a, 0x7a, 0xab, 0xd5, 0x3d, 0x7d, 0x4d, 0x38, 0xb8, 0x21, 0xfe, 0xdf, 0x35, 0xfa, 0xa6,
-	0xb7, 0x37, 0x54, 0x9a, 0xa7, 0xc1, 0x26, 0x3d, 0x28, 0xd3, 0x9d, 0x71, 0xf9, 0x08, 0x87, 0x5f,
-	0x96, 0xc2, 0xee, 0xe1, 0x28, 0xfe, 0xb6, 0x28, 0xd6, 0x1d, 0xd4, 0xfe, 0xed, 0x9d, 0xf3, 0x41,
-	0xfd, 0x86, 0x7b, 0xff, 0x46, 0x0e, 0x58, 0x8b, 0x2c, 0xf5, 0xe7, 0x8e, 0x7e, 0x41, 0x57, 0x1f,
-	0x01, 0x00, 0x00, 0xff, 0xff, 0xa0, 0x2f, 0x76, 0xb6, 0x75, 0x03, 0x00, 0x00,
+	// 408 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xec, 0x94, 0xcd, 0x8e, 0xd3, 0x30,
+	0x14, 0x85, 0xc9, 0x6f, 0xdb, 0x0b, 0x48, 0xc8, 0x15, 0x95, 0x55, 0x01, 0x8a, 0xb2, 0xea, 0x2a,
+	0x54, 0xb0, 0x63, 0x47, 0x61, 0x53, 0x89, 0x76, 0x11, 0x84, 0x58, 0x56, 0x6e, 0x72, 0xd5, 0x86,
+	0x36, 0x3f, 0xc4, 0x0e, 0x11, 0xcf, 0xc1, 0x23, 0xb0, 0xe2, 0x85, 0x78, 0x9e, 0x91, 0x9d, 0x26,
+	0x99, 0xe9, 0x34, 0x99, 0xd1, 0xac, 0x67, 0xd7, 0x73, 0x8e, 0x7d, 0x6b, 0x7f, 0xd7, 0xb9, 0x30,
+	0xcf, 0xf2, 0x54, 0xa4, 0x6f, 0x63, 0x0c, 0x23, 0xb6, 0x89, 0x51, 0xb0, 0x90, 0x09, 0x56, 0xc9,
+	0x5a, 0x6d, 0x38, 0xe6, 0xbf, 0xa2, 0x00, 0x3d, 0xb5, 0xd4, 0xfd, 0xa7, 0xc3, 0xeb, 0x4f, 0x39,
+	0x32, 0x81, 0x6b, 0x2c, 0x57, 0x72, 0xe1, 0xea, 0xb4, 0xd0, 0xc7, 0x9f, 0x05, 0x72, 0x41, 0x08,
+	0x98, 0x09, 0x8b, 0x91, 0x6a, 0x8e, 0x36, 0x1b, 0xf9, 0xea, 0x37, 0x99, 0xc2, 0x90, 0x47, 0x02,
+	0xd7, 0xd2, 0xd7, 0x95, 0xdf, 0x68, 0x32, 0x01, 0xfb, 0x88, 0xc9, 0x4e, 0xec, 0xa9, 0xe1, 0x68,
+	0x33, 0xcb, 0x3f, 0x29, 0xe9, 0x73, 0xc1, 0x44, 0xc1, 0xa9, 0x59, 0xf9, 0x95, 0x22, 0xaf, 0x60,
+	0x24, 0xf6, 0x45, 0xbc, 0x4d, 0x58, 0x74, 0xa4, 0x96, 0x2a, 0xd6, 0x1a, 0x32, 0xcd, 0xf2, 0xf4,
+	0x07, 0x06, 0x62, 0x19, 0x52, 0x5b, 0x6d, 0x6c, 0x0d, 0x32, 0x87, 0x31, 0x2b, 0xf9, 0xa2, 0x08,
+	0x0e, 0x28, 0xbe, 0xef, 0xd3, 0x23, 0xaa, 0x1b, 0xd0, 0x81, 0xaa, 0x72, 0x29, 0x22, 0x1f, 0x80,
+	0xb2, 0x92, 0x7f, 0x15, 0x69, 0xce, 0x76, 0xea, 0xbc, 0xd7, 0xb6, 0x0d, 0xd5, 0xb6, 0xce, 0xdc,
+	0xfd, 0x63, 0xc0, 0xcb, 0x33, 0x44, 0x3c, 0x4b, 0x13, 0x8e, 0x84, 0xc2, 0x40, 0x41, 0x5e, 0x86,
+	0x0a, 0x93, 0xe5, 0xd7, 0xb2, 0xa1, 0xa7, 0x77, 0xd0, 0x33, 0x3a, 0xe9, 0x99, 0x1d, 0xf4, 0xac,
+	0x6e, 0x7a, 0x76, 0x2f, 0xbd, 0xc1, 0x3d, 0xe9, 0x0d, 0x1f, 0x46, 0x6f, 0xd4, 0x4f, 0x4f, 0xde,
+	0xfa, 0x80, 0xbf, 0xcb, 0x34, 0x0f, 0x39, 0x05, 0xc7, 0x90, 0xb7, 0xae, 0xb5, 0x3c, 0x67, 0xa0,
+	0x1e, 0x61, 0xf8, 0x51, 0xd0, 0xa7, 0x8e, 0x36, 0x33, 0xfc, 0xd6, 0x90, 0x69, 0x91, 0x85, 0xa7,
+	0xf4, 0x59, 0x95, 0x36, 0x86, 0xfb, 0x5f, 0x07, 0xf2, 0x4d, 0x29, 0xf5, 0x3f, 0xf5, 0xb3, 0x7d,
+	0x6c, 0xc9, 0xdd, 0x2d, 0xe9, 0xc5, 0xfe, 0xee, 0xaf, 0x06, 0xcf, 0x6f, 0x3c, 0x77, 0xf2, 0x05,
+	0x5e, 0x24, 0x67, 0x53, 0x82, 0xbc, 0xf1, 0x7a, 0xc7, 0xc7, 0x74, 0xe2, 0x5d, 0xfc, 0x64, 0xdc,
+	0x27, 0xe4, 0x33, 0x8c, 0x8b, 0xb6, 0x6f, 0x4d, 0xc1, 0xb1, 0x77, 0xbb, 0x9b, 0xdd, 0x55, 0x16,
+	0x36, 0x98, 0xbb, 0x3c, 0x0b, 0xb6, 0xb6, 0x9a, 0x67, 0xef, 0xaf, 0x02, 0x00, 0x00, 0xff, 0xff,
+	0x20, 0xad, 0x52, 0x21, 0x03, 0x05, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -287,14 +402,15 @@ var _ context.Context
 var _ grpc.ClientConnInterface
 
 // This is a compile-time assertion to ensure that this generated file
-// is compatible with the grpc_client package it is being compiled against.
+// is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion6
 
 // MediaMetadataClient is the client API for MediaMetadata service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MediaMetadataClient interface {
-	NewMediaMetadata(ctx context.Context, in *CreateNewMediaMetadataRequest, opts ...grpc.CallOption) (*CreateNewMediaMetadataResponse, error)
+	NewMediaMetadata(ctx context.Context, in *CreateNewMediaMetadataRequest, opts ...grpc.CallOption) (*MediaMetadataResponse, error)
+	UpdateMediaMetadata(ctx context.Context, in *UpdateMediaRequest, opts ...grpc.CallOption) (*MediaMetadataResponse, error)
 }
 
 type mediaMetadataClient struct {
@@ -305,9 +421,18 @@ func NewMediaMetadataClient(cc grpc.ClientConnInterface) MediaMetadataClient {
 	return &mediaMetadataClient{cc}
 }
 
-func (c *mediaMetadataClient) NewMediaMetadata(ctx context.Context, in *CreateNewMediaMetadataRequest, opts ...grpc.CallOption) (*CreateNewMediaMetadataResponse, error) {
-	out := new(CreateNewMediaMetadataResponse)
+func (c *mediaMetadataClient) NewMediaMetadata(ctx context.Context, in *CreateNewMediaMetadataRequest, opts ...grpc.CallOption) (*MediaMetadataResponse, error) {
+	out := new(MediaMetadataResponse)
 	err := c.cc.Invoke(ctx, "/MediaMetadata/newMediaMetadata", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *mediaMetadataClient) UpdateMediaMetadata(ctx context.Context, in *UpdateMediaRequest, opts ...grpc.CallOption) (*MediaMetadataResponse, error) {
+	out := new(MediaMetadataResponse)
+	err := c.cc.Invoke(ctx, "/MediaMetadata/updateMediaMetadata", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -316,15 +441,19 @@ func (c *mediaMetadataClient) NewMediaMetadata(ctx context.Context, in *CreateNe
 
 // MediaMetadataServer is the server API for MediaMetadata service.
 type MediaMetadataServer interface {
-	NewMediaMetadata(context.Context, *CreateNewMediaMetadataRequest) (*CreateNewMediaMetadataResponse, error)
+	NewMediaMetadata(context.Context, *CreateNewMediaMetadataRequest) (*MediaMetadataResponse, error)
+	UpdateMediaMetadata(context.Context, *UpdateMediaRequest) (*MediaMetadataResponse, error)
 }
 
 // UnimplementedMediaMetadataServer can be embedded to have forward compatible implementations.
 type UnimplementedMediaMetadataServer struct {
 }
 
-func (*UnimplementedMediaMetadataServer) NewMediaMetadata(ctx context.Context, req *CreateNewMediaMetadataRequest) (*CreateNewMediaMetadataResponse, error) {
+func (*UnimplementedMediaMetadataServer) NewMediaMetadata(ctx context.Context, req *CreateNewMediaMetadataRequest) (*MediaMetadataResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method NewMediaMetadata not implemented")
+}
+func (*UnimplementedMediaMetadataServer) UpdateMediaMetadata(ctx context.Context, req *UpdateMediaRequest) (*MediaMetadataResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateMediaMetadata not implemented")
 }
 
 func RegisterMediaMetadataServer(s *grpc.Server, srv MediaMetadataServer) {
@@ -349,6 +478,24 @@ func _MediaMetadata_NewMediaMetadata_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MediaMetadata_UpdateMediaMetadata_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateMediaRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MediaMetadataServer).UpdateMediaMetadata(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/MediaMetadata/UpdateMediaMetadata",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MediaMetadataServer).UpdateMediaMetadata(ctx, req.(*UpdateMediaRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _MediaMetadata_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "MediaMetadata",
 	HandlerType: (*MediaMetadataServer)(nil),
@@ -356,6 +503,10 @@ var _MediaMetadata_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "newMediaMetadata",
 			Handler:    _MediaMetadata_NewMediaMetadata_Handler,
+		},
+		{
+			MethodName: "updateMediaMetadata",
+			Handler:    _MediaMetadata_UpdateMediaMetadata_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"google.golang.org/grpc"
 	"log"
+	"main/Models"
 	pbMediaMetadata "main/proto/media_metadata"
-	)
+	"strconv"
+)
 
 
 type MediaMetadataClient struct {
@@ -14,32 +16,35 @@ type MediaMetadataClient struct {
 	client pbMediaMetadata.MediaMetadataClient
 }
 
-func (mediaMetadata *MediaMetadataClient) CreateNewMediaMetadata()  {
-	response, err := mediaMetadata.client.NewMediaMetadata(context.Background(), &pbMediaMetadata.CreateNewMediaMetadataRequest{
-		Name:                     "test_name",
-		SiteName:                 "test_site",
-		Length:                   1,
-		Status:                   0,
-		Thumbnail:                "waw",
-		ProjectId:                -1,
-		AwsBucketWholeMedia:      "aws bucket",
-		AwsStorageNameWholeMedia: "whole_media",
+func (mediaMetadataClient *MediaMetadataClient) UpdateMediaMetadata(mediaMetadata *Models.MediaMetadata) (*pbMediaMetadata.MediaMetadataResponse, error)  {
+
+	createdAt, _ := strconv.ParseInt(mediaMetadata.CreatedAt, 10, 64)
+
+	response, err := mediaMetadataClient.client.UpdateMediaMetadata(context.Background(), &pbMediaMetadata.UpdateMediaRequest{
+		MediaId:                  int32(mediaMetadata.MediaId),
+		Name:                     mediaMetadata.Name,
+		SiteName:                 mediaMetadata.SiteName,
+		Length:                   int32(mediaMetadata.Length),
+		Status:                   3,
+		Thumbnail:                mediaMetadata.Thumbnail,
+		ProjectId:                int32(mediaMetadata.ProjectId),
+		AwsBucketWholeMedia:      mediaMetadata.AwsBucketWholeMedia,
+		AwsStorageNameWholeMedia: mediaMetadata.AwsStorageNameWholeMedia,
+		CreatedAt:                createdAt,
 	})
 
 	if err != nil {
-		log.Fatalf("could create new  media metadata: %v", err)
+		return nil, err
 	}
 
-	fmt.Println("RESPONSE")
-	log.Println(response.GetMediaId())
-	log.Println(response.GetCreatedAt())
-	log.Println(response.GetAwsBucketWholeMedia())
+	return response, nil
 }
 
 
 func InitMediaMetadataGrpcClient() *MediaMetadataClient  {
+	env := Models.GetEnvStruct()
 	fmt.Println("CONNECTING")
-	conn, err := grpc.Dial("localhost:9002", grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.Dial(env.MediaMetadataGrpcServer + ":" + env.MediaMetadataGrpcPort, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
