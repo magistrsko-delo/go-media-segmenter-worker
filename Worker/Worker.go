@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"main/HttpUtils"
+	"main/Http"
 	"main/Models"
 	"main/ffmpeg"
 	"main/grpc_client"
@@ -15,11 +15,24 @@ import (
 	"strings"
 )
 
+type WorkerInterface interface {
+	Work()
+	getMediaFrameRate(*Models.MediaMetadata) (int, error )
+	getSegmentLength(string) (float64, error)
+	createFullHDVideoSegments(*Models.MediaMetadata, int) error
+	getFilesPathsInDirectory() ([]string, error)
+	handleMediaChunks([]string, *Models.MediaMetadata, string)  error
+	removeFile(string)
+	standardizeSpaces(string) string
+}
+
 type Worker struct {
 	RabbitMQ *RabbitMqConnection
 	mediaMetadataGrpcClient *grpc_client.MediaMetadataClient
 	mediaChunksClient *grpc_client.MediaChunksClient
 	awsStorageClient *grpc_client.AwsStorageClient
+	ffmpeg *ffmpeg.FFmpeg
+	mediaDowLoader *Http.MediaDownloader
 	env *Models.Env
 }
 
@@ -32,110 +45,159 @@ func (worker *Worker) Work()  {
 		defer worker.mediaMetadataGrpcClient.Conn.Close()
 		for d := range worker.RabbitMQ.msgs {
 			log.Printf("Received a message: %s", d.Body)
+			isError := false
 
 			mediaMetadata := &Models.MediaMetadata{}
-			err := json.Unmarshal([]byte(d.Body), mediaMetadata)
+			err := json.Unmarshal(d.Body, mediaMetadata)
 			if err != nil{
 				log.Println(err)
+				isError = true
 			}
 
 			fileUrl := worker.env.AawsStorageUrl + "v1/awsStorage/media/" + mediaMetadata.AwsBucketWholeMedia + "/" + mediaMetadata.AwsStorageNameWholeMedia
-			err = HttpUtils.DownloadFile("./assets/" + mediaMetadata.AwsStorageNameWholeMedia, fileUrl)
+			err = worker.mediaDowLoader.DownloadFile("./assets/" + mediaMetadata.AwsStorageNameWholeMedia, fileUrl)
 			if err != nil {
 				log.Println(err)
+				isError = true
 			}
-			// exec ffmpeg commands
-			ffmpeg := &ffmpeg.FFmpeg{}
-				// get file frame rate
-			frameRate, err := ffmpeg.ExecFFprobeCommand([]string{"-v", "0", "-of", "csv=p=0", "-select_streams", "v:0", "-show_entries", "stream=r_frame_rate", "./assets/"+mediaMetadata.AwsStorageNameWholeMedia})
+
 			resolution := "1920x1080"
+			frames, err := worker.getMediaFrameRate(mediaMetadata)
 			if err != nil {
-				log.Println(err)
-			}
-			frames, _ := strconv.Atoi(strings.Split(frameRate, "/")[0])
-			fmt.Println("FRAME RATE: ", frames)
-
-			log.Println("CREATING VIDEO SEGMENTS")
-			cmdArgs := []string{"-i", "./assets/"+ mediaMetadata.AwsStorageNameWholeMedia, "-vf", "scale=w=1920:h=1080",
-				"-c:a", "aac", "-ar", "48000", "-b:a", "128k", "-c:v", "h264", "-profile:v", "main", "-crf", "20", "-g", strconv.Itoa(frames * 5), "-keyint_min", strconv.Itoa(frames * 5),
-				"-sc_threshold", "0", "-b:v", "5000k", "-maxrate", "5350k", "-bufsize", "7500", "-b:a", "192k", "-hls_segment_filename", "./assets/chunks/1080p_%03d.ts", "./assets/chunks/1080p.m3u8"}
-
-			err = ffmpeg.ExecFFmpegCommand(cmdArgs)
-
-			if err != nil {
-				log.Println(err)
+				isError = true
 			}
 
-			var files []string
-			root := "./assets/chunks"
-			err = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-				files = append(files, path)
-				return err
-			})
+			err = worker.createFullHDVideoSegments(mediaMetadata, frames)
 			if err != nil {
-				log.Println(err)
+				isError = true
 			}
 
-			position := 0
-			for index, file := range files {
-				if index == 0 || strings.Contains(file, ".gitkeep") {
-					continue
-				}
+			files, err := worker.getFilesPathsInDirectory()
+			if err != nil {
+				isError = true
+			}
 
-				if strings.Contains(file, ".m3u8") {
-					worker.removeFile(file)
-					continue
-				}
-
-				fmt.Println(file)
-				filePathArray := []string{}
-				if worker.env.Env == "live" {
-					filePathArray = strings.Split(file, "/")
-				} else {
-					filePathArray = strings.Split(file, "\\")
-				}
-
-				_, err = worker.awsStorageClient.UploadMedia(file, mediaMetadata.AwsBucketWholeMedia, filePathArray[len(filePathArray) - 1])
-				if err != nil {
-					log.Println(err)
-				}
-
-				length, err := ffmpeg.ExecFFprobeCommand([]string{"-i", file, "-show_entries", "format=duration", "-v", "quiet", "-of", "csv=p=0"})
-				if err != nil {
-					log.Println(err)
-				}
-
-				lengthFloat, _ :=  strconv.ParseFloat(worker.standardizeSpaces(length), 64)
-				lengthFloat = math.Ceil(lengthFloat*1000000)/1000000
-				fmt.Println("length: ", lengthFloat)
-				chunkMetadata := Models.NewChunkMetadata(mediaMetadata.AwsBucketWholeMedia, filePathArray[len(filePathArray) - 1], lengthFloat, mediaMetadata.MediaId, resolution, position)
-				_, err = worker.mediaChunksClient.UpdateMediaMetadata(chunkMetadata)
-				if err != nil {
-					log.Println(err)
-				}
-				fmt.Println("NAPREJ")
-
-				position++
-				worker.removeFile(file)
+			err = worker.handleMediaChunks(files, mediaMetadata, resolution)
+			if err != nil {
+				isError = true
 			}
 
 			worker.removeFile("./assets/" + mediaMetadata.AwsStorageNameWholeMedia)
 
-			_, err = worker.mediaMetadataGrpcClient.UpdateMediaMetadata(mediaMetadata)
-			if err != nil {
-				log.Println(err)
-			}
+			if !isError {
+				_, err = worker.mediaMetadataGrpcClient.UpdateMediaMetadata(mediaMetadata)
+				if err != nil {
+					log.Println(err)
+					isError = true
+				}
 
-			log.Printf("Done")
-			d.Ack(false)
+				if !isError {
+					log.Printf("Done")
+					_ = d.Ack(false)
+				}
+			}
 		}
 	}()
 	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
 	<-forever
 }
 
-func (worker *Worker) handleMediaChunks()  {
+func (worker *Worker) getMediaFrameRate(mediaMetadata *Models.MediaMetadata) (int, error ) {
+	frameRate, err := worker.ffmpeg.ExecFFprobeCommand([]string{"-v", "0", "-of", "csv=p=0", "-select_streams", "v:0", "-show_entries", "stream=r_frame_rate", "./assets/" + mediaMetadata.AwsStorageNameWholeMedia})
+	if err != nil {
+		log.Println(err)
+		return -1, err
+	}
+	frames, _ := strconv.Atoi(strings.Split(frameRate, "/")[0])
+	fmt.Println("FRAME RATE: ", frames)
+	return frames, nil
+}
 
+func (worker *Worker) getSegmentLength(file string) (float64, error)  {
+	length, err := worker.ffmpeg.ExecFFprobeCommand([]string{"-i", file, "-show_entries", "format=duration", "-v", "quiet", "-of", "csv=p=0"})
+	if err != nil {
+		log.Println(err)
+		return -1, err
+	}
+	lengthFloat, _ :=  strconv.ParseFloat(worker.standardizeSpaces(length), 64)
+	lengthFloat = math.Ceil(lengthFloat*1000000)/1000000
+	return lengthFloat, nil
+}
+
+func (worker *Worker) createFullHDVideoSegments(mediaMetadata *Models.MediaMetadata, frames int) error  {
+	log.Println("CREATING VIDEO SEGMENTS")
+	cmdArgs := []string{"-i", "./assets/"+ mediaMetadata.AwsStorageNameWholeMedia, "-vf", "scale=w=1920:h=1080",
+		"-c:a", "aac", "-ar", "48000", "-b:a", "128k", "-c:v", "h264", "-profile:v", "main", "-crf", "20", "-g", strconv.Itoa(frames * 5), "-keyint_min", strconv.Itoa(frames * 5),
+		"-sc_threshold", "0", "-b:v", "5000k", "-maxrate", "5350k", "-bufsize", "7500", "-b:a", "192k", "-hls_segment_filename", "./assets/chunks/1080p_%03d.ts", "./assets/chunks/1080p.m3u8"}
+
+	err := worker.ffmpeg.ExecFFmpegCommand(cmdArgs)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
+}
+
+func (worker *Worker) getFilesPathsInDirectory() ([]string, error) {
+	var files []string
+	root := "./assets/chunks"
+
+	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		files = append(files, path)
+		return err
+	})
+
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	return files, nil
+}
+
+func (worker *Worker) handleMediaChunks(files []string, mediaMetadata *Models.MediaMetadata, resolution string)  error {
+	position := 0
+	for index, file := range files {
+		if index == 0 || strings.Contains(file, ".gitkeep") {
+			continue
+		}
+
+		if strings.Contains(file, ".m3u8") {
+			worker.removeFile(file)
+			continue
+		}
+
+		log.Println(file)
+		filePathArray := []string{}
+		if worker.env.Env == "live" {
+			filePathArray = strings.Split(file, "/")
+		} else {
+			filePathArray = strings.Split(file, "\\")
+		}
+
+		_, err := worker.awsStorageClient.UploadMedia(file, mediaMetadata.AwsBucketWholeMedia, filePathArray[len(filePathArray) - 1])
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+
+		lengthFloat, err := worker.getSegmentLength(file)
+		if err != nil {
+			return err
+		}
+
+		log.Println("length: ", lengthFloat)
+		chunkMetadata := Models.NewChunkMetadata(mediaMetadata.AwsBucketWholeMedia, filePathArray[len(filePathArray) - 1], lengthFloat, mediaMetadata.MediaId, resolution, position)
+
+		_, err = worker.mediaChunksClient.UpdateMediaMetadata(chunkMetadata)
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+		position++
+		worker.removeFile(file)
+	}
+	return nil
 }
 
 
@@ -151,12 +213,13 @@ func (worker *Worker) standardizeSpaces(s string) string {
 }
 
 func InitWorker() *Worker  {
-
 	return &Worker{
 		RabbitMQ: 					initRabbitMqConnection(Models.GetEnvStruct()),
 		mediaMetadataGrpcClient: 	grpc_client.InitMediaMetadataGrpcClient(),
 		mediaChunksClient:			grpc_client.InitChunkMetadataClient(),
 		awsStorageClient:			grpc_client.InitAwsStorageGrpcClient(),
+		ffmpeg: 					&ffmpeg.FFmpeg{},
+		mediaDowLoader:				&Http.MediaDownloader{},
 		env:      					Models.GetEnvStruct(),
 	}
 }

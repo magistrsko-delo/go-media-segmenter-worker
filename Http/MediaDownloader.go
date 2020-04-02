@@ -1,4 +1,4 @@
-package HttpUtils
+package Http
 
 import (
 	"fmt"
@@ -9,45 +9,45 @@ import (
 	"strings"
 )
 
-type WriteCounter struct {
+type writeCounter struct {
 	Total uint64
 }
 
-func (wc *WriteCounter) Write(p []byte) (int, error) {
+func (wc *writeCounter) Write(p []byte) (int, error) {
 	n := len(p)
 	wc.Total += uint64(n)
 	wc.PrintProgress()
 	return n, nil
 }
 
-func (wc WriteCounter) PrintProgress() {
+func (wc writeCounter) PrintProgress() {
 	fmt.Printf("\r%s", strings.Repeat(" ", 35))
 	fmt.Printf("\rDownloading... %s complete", humanize.Bytes(wc.Total))
 }
 
-func DownloadFile(filepath string, url string) error {
+
+type MediaDownloader struct {
+}
+
+func (mediaDownloader *MediaDownloader) DownloadFile(filepath string, url string) error {
 	out, err := os.Create( filepath + ".tmp")
 	if err != nil {
 		return err
 	}
 
-	// Get the data
 	resp, err := http.Get(url)
 	if err != nil {
 		out.Close()
 		return err
 	}
 	defer resp.Body.Close()
-	counter := &WriteCounter{}
+	counter := &writeCounter{}
 	if _, err = io.Copy(out, io.TeeReader(resp.Body, counter)); err != nil {
 		out.Close()
 		return err
 	}
-
 	fmt.Print("\n")
-
 	out.Close()
-
 	if err = os.Rename(filepath+".tmp", filepath); err != nil {
 		return err
 	}
