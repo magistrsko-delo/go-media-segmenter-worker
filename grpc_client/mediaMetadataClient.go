@@ -12,7 +12,7 @@ import (
 
 
 type MediaMetadataClient struct {
-	conn *grpc.ClientConn
+	Conn *grpc.ClientConn
 	client pbMediaMetadata.MediaMetadataClient
 }
 
@@ -53,7 +53,7 @@ func InitMediaMetadataGrpcClient() *MediaMetadataClient  {
 
 	client := pbMediaMetadata.NewMediaMetadataClient(conn)
 	return &MediaMetadataClient{
-		conn:    conn,
+		Conn:    conn,
 		client:  client,
 	}
 

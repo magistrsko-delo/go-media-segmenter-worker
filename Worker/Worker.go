@@ -19,6 +19,7 @@ type Worker struct {
 	RabbitMQ *RabbitMqConnection
 	mediaMetadataGrpcClient *grpc_client.MediaMetadataClient
 	mediaChunksClient *grpc_client.MediaChunksClient
+	awsStorageClient *grpc_client.AwsStorageClient
 	env *Models.Env
 }
 
@@ -26,6 +27,9 @@ type Worker struct {
 func (worker *Worker) Work()  {
 	forever := make(chan bool)
 	go func() {
+		defer worker.awsStorageClient.Conn.Close()
+		defer worker.mediaChunksClient.Conn.Close()
+		defer worker.mediaMetadataGrpcClient.Conn.Close()
 		for d := range worker.RabbitMQ.msgs {
 			log.Printf("Received a message: %s", d.Body)
 
@@ -35,7 +39,7 @@ func (worker *Worker) Work()  {
 				log.Println(err)
 			}
 
-			fileUrl := worker.env.MediaManagerUrl + "v1/mediaManager/" + mediaMetadata.AwsBucketWholeMedia + "/" + mediaMetadata.AwsStorageNameWholeMedia
+			fileUrl := worker.env.AawsStorageUrl + "v1/awsStorage/media/" + mediaMetadata.AwsBucketWholeMedia + "/" + mediaMetadata.AwsStorageNameWholeMedia
 			err = HttpUtils.DownloadFile("./assets/" + mediaMetadata.AwsStorageNameWholeMedia, fileUrl)
 			if err != nil {
 				log.Println(err)
@@ -61,6 +65,7 @@ func (worker *Worker) Work()  {
 			if err != nil {
 				log.Println(err)
 			}
+
 			var files []string
 			root := "./assets/chunks"
 			err = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
@@ -89,8 +94,8 @@ func (worker *Worker) Work()  {
 				} else {
 					filePathArray = strings.Split(file, "\\")
 				}
-				// (path string, mediaName string, awsBucket string, awsStorageHost string
-				err = HttpUtils.UploadFile(file, filePathArray[len(filePathArray) - 1], mediaMetadata.AwsBucketWholeMedia, worker.env.AawsStorageUrl)
+
+				_, err = worker.awsStorageClient.UploadMedia(file, mediaMetadata.AwsBucketWholeMedia, filePathArray[len(filePathArray) - 1])
 				if err != nil {
 					log.Println(err)
 				}
@@ -108,6 +113,7 @@ func (worker *Worker) Work()  {
 				if err != nil {
 					log.Println(err)
 				}
+				fmt.Println("NAPREJ")
 
 				position++
 				worker.removeFile(file)
@@ -128,6 +134,11 @@ func (worker *Worker) Work()  {
 	<-forever
 }
 
+func (worker *Worker) handleMediaChunks()  {
+
+}
+
+
 func (worker *Worker) removeFile(path string)  {
 	err := os.Remove(path)
 	if err != nil {
@@ -145,6 +156,7 @@ func InitWorker() *Worker  {
 		RabbitMQ: 					initRabbitMqConnection(Models.GetEnvStruct()),
 		mediaMetadataGrpcClient: 	grpc_client.InitMediaMetadataGrpcClient(),
 		mediaChunksClient:			grpc_client.InitChunkMetadataClient(),
+		awsStorageClient:			grpc_client.InitAwsStorageGrpcClient(),
 		env:      					Models.GetEnvStruct(),
 	}
 }

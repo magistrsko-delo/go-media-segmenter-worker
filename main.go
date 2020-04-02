@@ -16,6 +16,7 @@ func init() {
 
 
 func main() {
+
 	worker := Worker.InitWorker()
 	defer worker.RabbitMQ.Conn.Close()
 	defer worker.RabbitMQ.Ch.Close()

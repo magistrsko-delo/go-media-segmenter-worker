@@ -21,6 +21,8 @@ type Env struct {
 	MediaMetadataGrpcPort string
 	ChunkMetadataGrpcServer string
 	ChunkMetadataGrpcPort string
+	AwsStorageGrpcServer string
+	AwsStorageGrpcPort string
 }
 
 func InitEnv()  {
@@ -38,6 +40,8 @@ func InitEnv()  {
 		MediaMetadataGrpcPort:   	os.Getenv("MEDIA_METADATA_GRPC_PORT"),
 		ChunkMetadataGrpcServer:  	os.Getenv("CHUNK_METADATA_GRPC_SERVER"),
 		ChunkMetadataGrpcPort:		os.Getenv("CHUNK_METADATA_GRPC_PORT"),
+		AwsStorageGrpcServer: 		os.Getenv("AWS_STORAGE_GRPC_SERVER"),
+		AwsStorageGrpcPort:			os.Getenv("AWS_STORAGE_GRPC_PORT"),
 	}
 	fmt.Println(envStruct)
 }

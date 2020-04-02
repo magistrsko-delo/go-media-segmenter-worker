@@ -10,7 +10,7 @@ import (
 )
 
 type MediaChunksClient struct {
-	conn *grpc.ClientConn
+	Conn *grpc.ClientConn
 	client pbMediaChunks.MediaMetadataClient
 }
 
@@ -46,7 +46,7 @@ func InitChunkMetadataClient() *MediaChunksClient  {
 
 	client := pbMediaChunks.NewMediaMetadataClient(conn)
 	return &MediaChunksClient{
-		conn:    conn,
+		Conn:    conn,
 		client:  client,
 	}
 
