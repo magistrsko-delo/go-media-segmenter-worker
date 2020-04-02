@@ -12,10 +12,7 @@ type Env struct {
 	RabbitPassword string
 	RabbitQueue string
 	RabbitHost string
-	MediaManagerUrl string
-	MediaMetadataUrl string
 	AawsStorageUrl string
-	ChunkMetadataUrl string
 	Env string
 	MediaMetadataGrpcServer string
 	MediaMetadataGrpcPort string
@@ -31,10 +28,7 @@ func InitEnv()  {
 		RabbitPassword:   			os.Getenv("RABBIT_PASSWORD"),
 		RabbitQueue:      			os.Getenv("RABBIT_QUEUE"),
 		RabbitHost:       			os.Getenv("RABBIT_HOST"),
-		MediaManagerUrl:  			os.Getenv("MEDIA_MANAGER_URL"),
-		MediaMetadataUrl: 			os.Getenv("MEDIA_METADATA_URL"),
 		AawsStorageUrl:   			os.Getenv("AWS_STORAGE_URL"),
-		ChunkMetadataUrl: 			os.Getenv("CHUNK_METADATA_URL"),
 		Env: 			  			os.Getenv("ENV"),
 		MediaMetadataGrpcServer: 	os.Getenv("MEDIA_METADATA_GRPC_SERVER"),
 		MediaMetadataGrpcPort:   	os.Getenv("MEDIA_METADATA_GRPC_PORT"),
