@@ -18,6 +18,7 @@ import (
 type Worker struct {
 	RabbitMQ *RabbitMqConnection
 	mediaMetadataGrpcClient *grpc_client.MediaMetadataClient
+	mediaChunksClient *grpc_client.MediaChunksClient
 	env *Models.Env
 }
 
@@ -102,10 +103,8 @@ func (worker *Worker) Work()  {
 				lengthFloat, _ :=  strconv.ParseFloat(worker.standardizeSpaces(length), 64)
 				lengthFloat = math.Ceil(lengthFloat*1000000)/1000000
 				fmt.Println("length: ", lengthFloat)
-
 				chunkMetadata := Models.NewChunkMetadata(mediaMetadata.AwsBucketWholeMedia, filePathArray[len(filePathArray) - 1], lengthFloat, mediaMetadata.MediaId, resolution, position)
-
-				err = HttpUtils.ChunkMetadataUpload(chunkMetadata, worker.env.ChunkMetadataUrl)
+				_, err = worker.mediaChunksClient.UpdateMediaMetadata(chunkMetadata)
 				if err != nil {
 					log.Println(err)
 				}
@@ -142,13 +141,11 @@ func (worker *Worker) standardizeSpaces(s string) string {
 
 func InitWorker() *Worker  {
 
-	// mediaMetadataClient := grpc_client.InitMediaMetadataGrpcClient()
-	// mediaMetadataClient.UpdateMediaMetadata()
-
 	return &Worker{
-		RabbitMQ: initRabbitMqConnection(Models.GetEnvStruct()),
-		mediaMetadataGrpcClient: grpc_client.InitMediaMetadataGrpcClient(),
-		env:      Models.GetEnvStruct(),
+		RabbitMQ: 					initRabbitMqConnection(Models.GetEnvStruct()),
+		mediaMetadataGrpcClient: 	grpc_client.InitMediaMetadataGrpcClient(),
+		mediaChunksClient:			grpc_client.InitChunkMetadataClient(),
+		env:      					Models.GetEnvStruct(),
 	}
 }
 
