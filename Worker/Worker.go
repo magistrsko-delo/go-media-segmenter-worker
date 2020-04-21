@@ -9,6 +9,7 @@ import (
 	"main/ffmpeg"
 	"main/grpc_client"
 	"math"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -97,9 +98,17 @@ func (worker *Worker) Work()  {
 
 			/////////////////////////
 
+			/// media image
+			thumbnail, err := worker.getMediaScreenShot(mediaMetadata)
+			if err != nil {
+				log.Println(err)
+			}
+			///
+
 			worker.removeFile("./assets/" + mediaMetadata.AwsStorageNameWholeMedia)
 
 			if !isError {
+				mediaMetadata.Thumbnail = thumbnail
 				_, err = worker.mediaMetadataGrpcClient.UpdateMediaMetadata(mediaMetadata)
 				if err != nil {
 					log.Println(err)
@@ -115,6 +124,24 @@ func (worker *Worker) Work()  {
 	}()
 	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
 	<-forever
+}
+
+func (worker *Worker) getMediaScreenShot(mediaMetadata *Models.MediaMetadata) (string, error) {
+	log.Println("CREATING MEDIA SCREENSHOT")
+	imageName := strconv.Itoa(mediaMetadata.MediaId) + "-" + strconv.Itoa(rand.Intn(1000000000000)) + "-" + mediaMetadata.AwsBucketWholeMedia + ".jpg"
+	err := worker.ffmpeg.ExecFFmpegCommand([]string{"-ss", "00:00:01", "-i", "./assets/" + mediaMetadata.AwsStorageNameWholeMedia, "-vframes", "1", "-g:v", "2", "./assets/" + imageName})
+	if err != nil {
+		log.Println(err)
+		return "" , err
+	}
+	_, err = worker.awsStorageClient.UploadMedia( "./assets/" + imageName, "mag20-images", imageName)  // TODO for later add this to configuration maybe..
+	if err != nil {
+		log.Println(err)
+		return "" , err
+	}
+
+	worker.removeFile("./assets/" + imageName)
+	return "v1/mediaManager/mag20-images/" + imageName, nil
 }
 
 func (worker *Worker) getMediaFrameRate(mediaMetadata *Models.MediaMetadata) (int, error ) {
@@ -141,7 +168,7 @@ func (worker *Worker) getSegmentLength(file string) (float64, error)  {
 
 func (worker *Worker) createFullHDVideoSegments(mediaMetadata *Models.MediaMetadata, frames int) error  {
 	log.Println("CREATING VIDEO SEGMENTS 1080p")
-	cmdArgs := []string{"-i", "./assets/"+ mediaMetadata.AwsStorageNameWholeMedia, "-vf", "scale=w=1920:h=1080:force_original_aspect_ratio=decrease",
+	cmdArgs := []string{"-i", "./assets/" + mediaMetadata.AwsStorageNameWholeMedia, "-vf", "scale=w=1920:h=1080:force_original_aspect_ratio=decrease",
 		"-c:a", "aac", "-ar", "48000", "-c:v", "h264", "-profile:v", "main", "-crf", "20", "-g", strconv.Itoa(frames * 5), "-keyint_min", strconv.Itoa(frames * 5),
 		"-sc_threshold", "0", "-b:v", "5000k", "-maxrate", "5350k", "-bufsize", "7500k", "-b:a", "192k", "-hls_segment_filename", "./assets/chunks/1080p_%03d.ts", "./assets/chunks/1080p.m3u8"}
 
