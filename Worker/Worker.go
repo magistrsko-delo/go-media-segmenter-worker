@@ -61,11 +61,13 @@ func (worker *Worker) Work()  {
 				isError = true
 			}
 
-			resolution := "1920x1080"
 			frames, err := worker.getMediaFrameRate(mediaMetadata)
 			if err != nil {
 				isError = true
 			}
+
+			//////////////////////////////////////////////// 1080p
+			resolution := "1920x1080"
 
 			err = worker.createFullHDVideoSegments(mediaMetadata, frames)
 			if err != nil {
@@ -81,6 +83,19 @@ func (worker *Worker) Work()  {
 			if err != nil {
 				isError = true
 			}
+			//////////////////////////480p
+			resolution = "842x480"
+			err = worker.create480pVideoSegments(mediaMetadata, frames)
+			files, err = worker.getFilesPathsInDirectory()
+			if err != nil {
+				isError = true
+			}
+			err = worker.handleMediaChunks(files, mediaMetadata, resolution)
+			if err != nil {
+				isError = true
+			}
+
+			/////////////////////////
 
 			worker.removeFile("./assets/" + mediaMetadata.AwsStorageNameWholeMedia)
 
@@ -125,10 +140,10 @@ func (worker *Worker) getSegmentLength(file string) (float64, error)  {
 }
 
 func (worker *Worker) createFullHDVideoSegments(mediaMetadata *Models.MediaMetadata, frames int) error  {
-	log.Println("CREATING VIDEO SEGMENTS")
-	cmdArgs := []string{"-i", "./assets/"+ mediaMetadata.AwsStorageNameWholeMedia, "-vf", "scale=w=1920:h=1080",
-		"-c:a", "aac", "-ar", "48000", "-b:a", "128k", "-c:v", "h264", "-profile:v", "main", "-crf", "20", "-g", strconv.Itoa(frames * 5), "-keyint_min", strconv.Itoa(frames * 5),
-		"-sc_threshold", "0", "-b:v", "5000k", "-maxrate", "5350k", "-bufsize", "7500", "-b:a", "192k", "-hls_segment_filename", "./assets/chunks/1080p_%03d.ts", "./assets/chunks/1080p.m3u8"}
+	log.Println("CREATING VIDEO SEGMENTS 1080p")
+	cmdArgs := []string{"-i", "./assets/"+ mediaMetadata.AwsStorageNameWholeMedia, "-vf", "scale=w=1920:h=1080:force_original_aspect_ratio=decrease",
+		"-c:a", "aac", "-ar", "48000", "-c:v", "h264", "-profile:v", "main", "-crf", "20", "-g", strconv.Itoa(frames * 5), "-keyint_min", strconv.Itoa(frames * 5),
+		"-sc_threshold", "0", "-b:v", "5000k", "-maxrate", "5350k", "-bufsize", "7500k", "-b:a", "192k", "-hls_segment_filename", "./assets/chunks/1080p_%03d.ts", "./assets/chunks/1080p.m3u8"}
 
 	err := worker.ffmpeg.ExecFFmpegCommand(cmdArgs)
 	if err != nil {
@@ -137,6 +152,21 @@ func (worker *Worker) createFullHDVideoSegments(mediaMetadata *Models.MediaMetad
 	}
 	return nil
 }
+
+func (worker *Worker) create480pVideoSegments(mediaMetadata *Models.MediaMetadata, frames int) error  {
+	log.Println("CREATING VIDEO SEGMENTS 480p")
+	cmdArgs := []string{"-i", "./assets/"+ mediaMetadata.AwsStorageNameWholeMedia, "-vf", "scale=w=842:h=480:force_original_aspect_ratio=decrease",
+		"-c:a", "aac", "-ar", "48000", "-c:v", "h264", "-profile:v", "main", "-crf", "20", "-g", strconv.Itoa(frames * 5), "-keyint_min", strconv.Itoa(frames * 5),
+		"-sc_threshold", "0", "-b:v", "1400k", "-maxrate", "1400k", "-bufsize", "2100k", "-b:a", "128k", "-hls_segment_filename", "./assets/chunks/480p_%03d.ts", "./assets/chunks/480p.m3u8"}
+
+	err := worker.ffmpeg.ExecFFmpegCommand(cmdArgs)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
+}
+
 
 func (worker *Worker) getFilesPathsInDirectory() ([]string, error) {
 	var files []string
