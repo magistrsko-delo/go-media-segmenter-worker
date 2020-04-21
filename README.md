@@ -15,9 +15,6 @@ Media chunks segmenter worker
 ```ffmpeg -i SampleVideo_1280x720_5mb.mp4 -vf scale=w=1280:h=720:force_original_aspect_ratio=decrease -c:a aac -ar 48000 -b:a 128k -c:v h264 -profile:v main -crf 20 -g 50 -keyint_min 50 -sc_threshold 0 -b:v 2500k -maxrate 2675k -bufsize 3750k -hls_segment_filename 720p_%03d.ts 720p.m3u8```
 
 
-
-
-
 ```
 cmdArgs := []string{"-i", "./assets/"+mediaMetadata.AwsStorageNameWholeMedia, "-vf", "scale=w=1920:h=1080:force_original_aspect_ratio=decrease",
    "-c:a", "aac", "-ar", "48000", "-b:a", "128k", "-c:v", "h264", "-profile:v", "main", "-crf", "20", "-g", "50", "-keyint_min", "50",
