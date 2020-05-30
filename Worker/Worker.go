@@ -55,7 +55,7 @@ func (worker *Worker) Work()  {
 				isError = true
 			}
 
-			fileUrl := worker.env.AawsStorageUrl + "v1/awsStorage/media/" + mediaMetadata.AwsBucketWholeMedia + "/" + mediaMetadata.AwsStorageNameWholeMedia
+			fileUrl := worker.env.AwsStorageUrl + "v1/awsStorage/media/" + mediaMetadata.AwsBucketWholeMedia + "/" + mediaMetadata.AwsStorageNameWholeMedia
 			err = worker.mediaDowLoader.DownloadFile("./assets/" + mediaMetadata.AwsStorageNameWholeMedia, fileUrl)
 			if err != nil {
 				log.Println(err)
